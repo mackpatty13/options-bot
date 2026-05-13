@@ -1,0 +1,39 @@
+name: trading_cycle
+
+# Cron: every 30 min from 14:00 to 21:00 UTC, Mon-Fri.
+# That covers 10:00 AM - 5:00 PM ET during EDT (UTC-4) and 09:00 AM - 4:00 PM ET during EST (UTC-5).
+# Entry window logic (10:00-15:00 ET) is enforced inside the bot, not the cron, so DST shifts
+# only mean a couple of irrelevant pre-open / post-close cycles per year. UTC keeps the cron stable.
+on:
+  schedule:
+    - cron: "0,30 14-20 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run one trading cycle
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          ALPACA_PAPER: "true"
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DRY_RUN: ${{ vars.DRY_RUN || 'true' }}
+          DAILY_TRADE_CAP: ${{ vars.DAILY_TRADE_CAP || '1' }}
+        run: python -m src.main
