@@ -1,6 +1,6 @@
 # Options Bot Trading Rules
 
-This document defines the rules a $500 paper-account options bot operates under. It is read by the bot every cycle and provided to the Claude decision step as context. **Claude is a gatekeeper, not a signal source.** Indicators and signals are computed deterministically in Python; Claude only chooses among `enter`, `exit`, or `hold` given the situation. Every limit named in these rules is also enforced in code by `validate_order()`.
+This document defines the rules a ~$50,000 paper-account options bot operates under. It is read by the bot every cycle and provided to the Claude decision step as context. **Claude is a gatekeeper, not a signal source.** Indicators and signals are computed deterministically in Python; Claude only chooses among `enter`, `exit`, or `hold` given the situation. Every limit named in these rules is also enforced in code by `validate_order()`.
 
 ## 1. Universe
 
@@ -30,7 +30,7 @@ This document defines the rules a $500 paper-account options bot operates under.
 4.3. Short leg: **2 to 3 strikes further OTM** than the long leg.
 4.4. Both legs must have **open interest greater than 500.**
 4.5. Both legs must have **bid-ask spread less than 8% of mid.**
-4.6. Total debit (net premium paid): **between $50 and $150.**
+4.6. Total debit (net premium paid): **between $300 and $2,000.**
 
 ## 5. Exits
 
@@ -41,12 +41,12 @@ This document defines the rules a $500 paper-account options bot operates under.
 
 ## 6. Account Limits (enforced by validate_order)
 
-6.1. Account equity must be **at least $200.**
-6.2. Buying power must cover the debit at order time.
-6.3. Maximum **2 concurrent positions** across the whole account.
-6.4. Maximum **1 trade entry per day** until June 4, 2026. After that, **3 per day** (configured via `DAILY_TRADE_CAP`).
-6.5. Daily loss halt at **-$40** realized P/L. No new entries below this threshold. Existing positions are still managed normally.
-6.6. Position size must be **less than 30% of account equity.**
+6.1. Account equity must be **at least $20,000.**
+6.2. Buying power must cover the debit at order time and be **at least $2,000.**
+6.3. Maximum **10 concurrent positions** across the whole account.
+6.4. Maximum **10 trade entries per day** (configured via `DAILY_TRADE_CAP`). Account is above the $25K PDT threshold, so this is a sanity throttle, not a regulatory cap.
+6.5. Daily loss halt at **-$2,000** realized P/L. No new entries below this threshold. Existing positions are still managed normally.
+6.6. Position size must be **less than 10% of account equity.**
 6.7. **Limit orders only**, never market orders.
 
 ## 7. Decision Protocol for Claude

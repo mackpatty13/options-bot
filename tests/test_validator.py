@@ -24,7 +24,7 @@ def _ok_order(**overrides) -> OrderProposal:
         long_strike=500.0,
         short_strike=503.0,
         expiration=TODAY + timedelta(days=10),
-        debit=100.0,
+        debit=1000.0,
         qty=1,
         long_delta=0.50,
         long_open_interest=2000,
@@ -39,8 +39,8 @@ def _ok_order(**overrides) -> OrderProposal:
 
 def _ok_account(**overrides) -> AccountSnapshot:
     base = dict(
-        equity=500.0,
-        buying_power=400.0,
+        equity=50000.0,
+        buying_power=40000.0,
         daily_realized_pnl=0.0,
         open_positions=0,
         todays_entry_count=0,
@@ -55,13 +55,13 @@ def test_happy_path_allows():
 
 
 def test_rule_1_equity_floor_blocks():
-    ok, reason = validate_order(_ok_order(), _ok_account(equity=150.0), today=TODAY)
+    ok, reason = validate_order(_ok_order(), _ok_account(equity=15000.0), today=TODAY)
     assert not ok and "equity" in reason
 
 
 def test_rule_2_buying_power_blocks():
-    ok, reason = validate_order(_ok_order(debit=140.0, qty=4),
-                                 _ok_account(buying_power=200.0), today=TODAY)
+    ok, reason = validate_order(_ok_order(debit=1500.0, qty=2),
+                                 _ok_account(buying_power=2500.0), today=TODAY)
     assert not ok and "buying power" in reason
 
 
@@ -87,20 +87,20 @@ def test_rule_5_loss_halt_blocks():
 
 
 def test_rule_6_position_size_blocks():
-    # 30% of $500 = $150; qty=2 * debit=$100 = $200 > $150
-    ok, reason = validate_order(_ok_order(qty=2), _ok_account(), today=TODAY)
+    # 10% of $50K = $5,000; qty=6 * debit=$1,000 = $6,000 > $5,000
+    ok, reason = validate_order(_ok_order(qty=6), _ok_account(), today=TODAY)
     assert not ok and "% of equity" in reason
 
 
 def test_rule_7_debit_too_low_blocks():
-    ok, reason = validate_order(_ok_order(debit=40.0), _ok_account(), today=TODAY)
+    ok, reason = validate_order(_ok_order(debit=200.0), _ok_account(), today=TODAY)
     assert not ok and "min" in reason
 
 
 def test_rule_7_debit_too_high_blocks():
-    # Use larger equity so rule 6 (position size) doesn't fire first.
-    ok, reason = validate_order(_ok_order(debit=160.0),
-                                 _ok_account(equity=10000.0, buying_power=10000.0),
+    # Equity large enough that rule 6 (position size) doesn't fire first.
+    ok, reason = validate_order(_ok_order(debit=2500.0),
+                                 _ok_account(equity=200000.0, buying_power=100000.0),
                                  today=TODAY)
     assert not ok and "max" in reason
 

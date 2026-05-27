@@ -43,7 +43,7 @@ ANTHROPIC_API_KEY = _env("ANTHROPIC_API_KEY")
 
 # --- Operational toggles ---
 DRY_RUN = _env_bool("DRY_RUN", True)
-DAILY_TRADE_CAP = _env_int("DAILY_TRADE_CAP", 1)   # flip to 3 after PDT sunsets June 4 2026
+DAILY_TRADE_CAP = _env_int("DAILY_TRADE_CAP", 10)   # sanity throttle; account is above PDT threshold
 
 # --- Universe ---
 TICKERS = ("SPY", "QQQ")
@@ -53,12 +53,12 @@ ENTRY_WINDOW_START = time(10, 0)
 ENTRY_WINDOW_END = time(15, 0)
 EOD_FLATTEN_AFTER = time(15, 45)
 
-# --- Account / risk gates ---
-MIN_EQUITY = 200.0
-MIN_BUYING_POWER_FOR_ENTRY = 200.0
-MAX_CONCURRENT_POSITIONS = 2
-DAILY_LOSS_HALT = -40.0
-MAX_PCT_OF_EQUITY_PER_POSITION = 0.30
+# --- Account / risk gates (sized for ~$50K paper account) ---
+MIN_EQUITY = 20000.0
+MIN_BUYING_POWER_FOR_ENTRY = 2000.0
+MAX_CONCURRENT_POSITIONS = 10
+DAILY_LOSS_HALT = -2000.0
+MAX_PCT_OF_EQUITY_PER_POSITION = 0.10
 
 # --- Spread construction ---
 DTE_MIN = 7
@@ -67,8 +67,8 @@ LONG_DELTA_MIN = 0.40
 LONG_DELTA_MAX = 0.55
 SHORT_STRIKES_AWAY_MIN = 2
 SHORT_STRIKES_AWAY_MAX = 3
-DEBIT_MIN = 50.0
-DEBIT_MAX = 150.0
+DEBIT_MIN = 300.0
+DEBIT_MAX = 2000.0
 MIN_OPEN_INTEREST = 500
 MAX_BID_ASK_PCT_OF_MID = 0.08
 

@@ -24,7 +24,7 @@ def _load_rules() -> str:
 
 
 SYSTEM_INSTRUCTION = (
-    "You are the decision gatekeeper for a $500 paper-trading options bot. "
+    "You are the decision gatekeeper for a ~$50,000 paper-trading options bot. "
     "Indicators and entry signals are computed in Python BEFORE you see them. "
     "Your job is to pick exactly one action given the full state, and return ONLY a JSON object. "
     "Do not invent trades not supported by a fired signal. Do not propose option contracts; "
