@@ -5,8 +5,11 @@ name: trading_cycle
 # Entry window logic (10:00-15:00 ET) is enforced inside the bot, not the cron, so DST shifts
 # only mean a couple of irrelevant pre-open / post-close cycles per year. UTC keeps the cron stable.
 on:
-  schedule:
-    - cron: "0,30 14-20 * * 1-5"
+  # Scheduled cron disabled 2026-05-26: this bot now runs locally via Windows Task
+  # Scheduler (task "OptionsBot-TradingCycle"). To re-enable, restore the schedule
+  # block below and update the SUPABASE_URL / service-role secret to a live project.
+  #   schedule:
+  #     - cron: "0,30 14-20 * * 1-5"
   workflow_dispatch:
 
 jobs:
