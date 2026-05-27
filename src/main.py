@@ -16,6 +16,8 @@ import logging
 import sys
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Optional
 
 import pytz
@@ -31,6 +33,22 @@ from .validator import AccountSnapshot, OrderProposal, validate_order
 log = logging.getLogger("options_bot")
 
 ET = pytz.timezone("America/New_York")
+
+LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
+
+
+def _setup_logging() -> None:
+    """Console + rotating file log (5 MB x 5). The file log matters for headless runs
+    (pythonw under Task Scheduler), where console output is discarded and a crash before
+    the Supabase logging call would otherwise be invisible."""
+    LOG_DIR.mkdir(exist_ok=True)
+    fmt = "%(asctime)s %(levelname)s %(name)s: %(message)s"
+    handlers = [
+        RotatingFileHandler(LOG_DIR / "options_bot.log", maxBytes=5 * 1024 * 1024,
+                            backupCount=5, encoding="utf-8"),
+        logging.StreamHandler(),
+    ]
+    logging.basicConfig(level=logging.INFO, format=fmt, handlers=handlers)
 
 
 def now_et() -> datetime:
@@ -68,10 +86,7 @@ def position_should_exit(pos: OpenPosition, now: datetime) -> Optional[str]:
 # --- cycle ---
 
 def run_one_cycle() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
+    _setup_logging()
     log.info("=== options-bot cycle start | dry_run=%s | daily_cap=%s ===",
              config.DRY_RUN, config.DAILY_TRADE_CAP)
 
