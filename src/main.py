@@ -179,7 +179,10 @@ def run_one_cycle() -> None:
         eligible.sort(key=lambda s: (config.TICKERS.index(s.underlying)))
 
         for sig in eligible:
-            spread = build_spread(sig.underlying, sig.signal_type, alpaca)
+            spread = build_spread(
+                sig.underlying, sig.signal_type, alpaca,
+                equity=state.equity, buying_power=state.buying_power,
+            )
             if spread is None:
                 sb.log_rejection(cycle_id=cycle_id,
                                  attempted_action=f"enter {sig.underlying} {sig.signal_type}",

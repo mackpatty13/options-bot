@@ -58,7 +58,8 @@ MIN_EQUITY = 20000.0
 MIN_BUYING_POWER_FOR_ENTRY = 2000.0
 MAX_CONCURRENT_POSITIONS = 10
 DAILY_LOSS_HALT = -2000.0
-MAX_PCT_OF_EQUITY_PER_POSITION = 0.10
+MAX_PCT_OF_EQUITY_PER_POSITION = 0.10     # hard cap; validator rejects above this
+TARGET_PCT_OF_EQUITY_PER_POSITION = 0.05  # sizing target; strategy picks qty to land here
 
 # --- Spread construction ---
 DTE_MIN = 7
@@ -67,7 +68,10 @@ LONG_DELTA_MIN = 0.40
 LONG_DELTA_MAX = 0.55
 SHORT_STRIKES_AWAY_MIN = 2
 SHORT_STRIKES_AWAY_MAX = 3
-DEBIT_MIN = 300.0
+# SPY/QQQ now trade $1-wide strikes near ATM, so a 2-3-strike spread is only $2-3
+# wide and costs ~$80-170/contract. A $300 floor made every spread impossible to
+# build; sizing (TARGET_PCT_OF_EQUITY) scales contract count up to reach the target.
+DEBIT_MIN = 80.0
 DEBIT_MAX = 2000.0
 MIN_OPEN_INTEREST = 500
 MAX_BID_ASK_PCT_OF_MID = 0.08

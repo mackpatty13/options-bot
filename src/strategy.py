@@ -71,6 +71,8 @@ def build_spread(
     underlying: str,
     direction: str,             # "bull" or "bear"
     alpaca: AlpacaClient,
+    equity: float,
+    buying_power: float,
 ) -> Optional[ProposedSpread]:
     """Find a spread whose legs satisfy every rule. Returns None if nothing qualifies."""
     right = "C" if direction == "bull" else "P"
@@ -100,15 +102,31 @@ def build_spread(
             if not (config.DEBIT_MIN <= debit <= config.DEBIT_MAX):
                 continue
             spread_type = "bull_call" if direction == "bull" else "bear_put"
+            qty = _size_qty(debit, equity, buying_power)
             return ProposedSpread(
                 underlying=underlying,
                 spread_type=spread_type,
                 long_leg=long_leg,
                 short_leg=short_leg,
                 debit_per_contract=debit,
-                qty=1,
+                qty=qty,
             )
     return None
+
+
+def _size_qty(debit_per_contract: float, equity: float, buying_power: float) -> int:
+    """Pick a contract count that targets TARGET_PCT of equity, never exceeds MAX_PCT
+    of equity or available buying power, and is at least 1."""
+    if debit_per_contract <= 0:
+        return 1
+    target_dollars = equity * config.TARGET_PCT_OF_EQUITY_PER_POSITION
+    max_dollars = min(
+        equity * config.MAX_PCT_OF_EQUITY_PER_POSITION,
+        buying_power,
+    )
+    target_qty = max(1, round(target_dollars / debit_per_contract))
+    max_qty = max(1, int(max_dollars / debit_per_contract))
+    return min(target_qty, max_qty)
 
 
 def _candidate_long_legs(legs_sorted_by_strike: list[OptionLeg], direction: str) -> list[OptionLeg]:
